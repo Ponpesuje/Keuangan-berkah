@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   LayoutDashboard, Receipt, BookOpen, Settings, LogOut,
-  Plus, Printer, Download, UserCircle, Building2, Wallet, TrendingUp,
+  Plus, Printer,FileSignature, Download, UserCircle, Building2, Wallet, TrendingUp,
   Lock, Trash2, FileText, Landmark, Filter, Shield, HelpCircle, FileSpreadsheet,
   ChevronRight, AlertCircle, RefreshCw, X
 } from 'lucide-react';
@@ -251,7 +251,7 @@ export default function App() {
           <NavItem icon={<FileText size={18}/>} label="Neraca Keuangan" active={currentView === 'neraca'} onClick={() => setCurrentView('neraca')} />
           <NavItem icon={<HelpCircle size={18}/>} label="Catatan CALK" active={currentView === 'calk'} onClick={() => setCurrentView('calk')} />
           <NavItem icon={<Landmark size={18}/>} label="Pajak Badan" active={currentView === 'laporan-pajak'} onClick={() => setCurrentView('laporan-pajak')} />
-          
+          <NavItem icon={<FileSignature size={18}/>} label="Berita Acara RUPS" active={currentView === 'berita-acara'} onClick={() => setCurrentView('berita-acara')} />
           {currentUser.role === 'admin' && (
             <>
               <div className="pt-4 pb-2">
@@ -300,6 +300,7 @@ export default function App() {
           {currentView === 'calk' && <CalkView accounts={accounts} balances={balances} company={company} />}
           {currentView === 'laporan-pajak' && <LaporanPajakView accounts={accounts} balances={balances} company={company} />}
           {currentView === 'settings' && <SettingsView company={company} setCompany={setCompany} accounts={accounts} saveToCloud={saveToCloud} user={currentUser} />}
+          {currentView === 'berita-acara' && <BeritaAcaraView company={company} />}
         </div>
       </main>
     </div>
@@ -1210,4 +1211,251 @@ function SettingsView({ company, setCompany, accounts, saveToCloud, user }) {
       </form>
     </div>
   );
+}
+ /*BERITA ACARA RUPS (BISA DI ISI & PRINT)
+
+   ======================================================================== */
+
+function BeritaAcaraView({ company }) {
+
+  const [formData, setFormData] = useState({
+
+    hari: 'Senin',
+
+    tanggal: new Date().toISOString().split('T')[0],
+
+    waktu: '10:00',
+
+    tempat: company.address,
+
+    pimpinan: 'Bpk. Direktur Utama',
+
+    sekretaris: 'Ibu Sekretaris Perusahaan',
+
+    kuorum: '100',
+
+    keputusan: '1. Menyetujui dan mengesahkan Laporan Keuangan Tahunan Perusahaan.\n2. Memberikan pelunasan dan pembebasan tanggung jawab (acquit et decharge) kepada Direksi atas tindakan pengurusan selama tahun buku berjalan.\n3. Menetapkan penggunaan laba bersih perusahaan untuk ditahan sebagai modal kerja.'
+
+  });
+
+
+
+  const handleChange = (e) => setFormData({...formData, [e.target.name]: e.target.value});
+
+
+
+  const getDayName = (dateStr) => {
+
+    const date = new Date(dateStr);
+
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+    return days[date.getDay()];
+
+  };
+
+
+
+  const formatDateIndo = (dateStr) => {
+
+    return new Date(dateStr).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  };
+
+
+
+  return (
+
+    <div className="space-y-8 animate-fade-in relative z-10">
+
+      <div className="flex justify-between items-end print:hidden">
+
+        <div>
+
+          <h2 className="text-2xl font-black text-white uppercase tracking-wider">Draft Berita Acara RUPS</h2>
+
+          <p className="text-slate-400 text-xs font-medium mt-1">Isi formulir di bawah ini, dokumen legal akan ter-generate otomatis saat dicetak.</p>
+
+        </div>
+
+        <button onClick={() => window.print()} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-white flex items-center gap-2 shadow-lg transition-all"><Printer size={16}/> Cetak Dokumen Legal</button>
+
+      </div>
+
+
+
+      {/* Form Input (Hanya tampil di layar) */}
+
+      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-6 print:hidden">
+
+        <div><label className="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Tanggal Rapat</label><input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white text-sm" /></div>
+
+        <div><label className="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Waktu (WIB)</label><input type="time" name="waktu" value={formData.waktu} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white text-sm" /></div>
+
+        <div><label className="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Tempat Pelaksanaan</label><input type="text" name="tempat" value={formData.tempat} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white text-sm" /></div>
+
+        <div><label className="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Pimpinan Rapat</label><input type="text" name="pimpinan" value={formData.pimpinan} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white text-sm" /></div>
+
+        <div><label className="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Sekretaris Rapat</label><input type="text" name="sekretaris" value={formData.sekretaris} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white text-sm" /></div>
+
+        <div><label className="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Kehadiran Kuorum (%)</label><input type="number" name="kuorum" value={formData.kuorum} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white text-sm" /></div>
+
+        <div className="md:col-span-3"><label className="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Hasil Keputusan (Pisahkan dengan Enter)</label><textarea name="keputusan" value={formData.keputusan} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white text-sm h-32" /></div>
+
+      </div>
+
+
+
+      {/* Kertas Cetak A4 */}
+
+      <div className="bg-white text-slate-900 p-12 md:p-16 rounded-3xl max-w-4xl mx-auto shadow-2xl print:shadow-none print:p-0 min-h-[1122px] font-sans border border-slate-200 text-justify">
+
+        <PrintLetterhead company={company} />
+
+       
+
+        <div className="text-center mb-10">
+
+          <h3 className="text-xl font-black text-slate-900 uppercase tracking-widest underline underline-offset-4">BERITA ACARA RAPAT UMUM PEMEGANG SAHAM</h3>
+
+          <p className="text-sm font-bold text-slate-700 mt-2 uppercase">{company.name}</p>
+
+        </div>
+
+
+
+        <div className="space-y-6 text-base leading-relaxed">
+
+          <p>
+
+            Pada hari ini, <strong>{getDayName(formData.tanggal)}</strong>, tanggal <strong>{formatDateIndo(formData.tanggal)}</strong>, bertempat di <strong>{formData.tempat}</strong>, telah diselenggarakan Rapat Umum Pemegang Saham (selanjutnya disebut "Rapat") dari <strong>{company.name}</strong>.
+
+          </p>
+
+         
+
+          <div>
+
+            <p className="mb-2">Rapat dibuka pada pukul <strong>{formData.waktu} WIB</strong> dan dipimpin oleh:</p>
+
+            <table className="ml-8 w-full">
+
+              <tbody>
+
+                <tr><td className="w-48 py-1">Pimpinan Rapat</td><td className="w-4">:</td><td className="font-bold">{formData.pimpinan}</td></tr>
+
+                <tr><td className="w-48 py-1">Sekretaris Rapat</td><td className="w-4">:</td><td className="font-bold">{formData.sekretaris}</td></tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+
+          <p>
+
+            Pimpinan Rapat melaporkan bahwa pemegang saham yang hadir atau diwakili dalam Rapat ini mewakili sejumlah <strong>{formData.kuorum}%</strong> dari seluruh saham dengan hak suara yang sah yang telah dikeluarkan oleh Perusahaan. Dengan demikian, kuorum Rapat telah tercapai dan Rapat sah serta berhak mengambil keputusan yang mengikat.
+
+          </p>
+
+
+
+          <div>
+
+            <p className="font-bold uppercase tracking-widest mb-4 border-b-2 border-slate-900 inline-block">Mata Acara & Keputusan Rapat:</p>
+
+            <p className="mb-4">Setelah menelaah Laporan Keuangan (Neraca, Laba/Rugi, Arus Kas, dan Perubahan Ekuitas) dan mendengarkan presentasi kinerja, Rapat secara musyawarah dan mufakat memutuskan hal-hal sebagai berikut:</p>
+
+            <div className="ml-8 space-y-3">
+
+              {formData.keputusan.split('\n').map((item, index) => (
+
+                <p key={index} className="pl-4 -indent-4">{item}</p>
+
+              ))}
+
+            </div>
+
+          </div>
+
+
+
+          <p className="pt-4">
+
+            Demikian Berita Acara Rapat ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya. Rapat ditutup pada pukul {String(parseInt(formData.waktu.split(':')[0]) + 2).padStart(2, '0')}:{formData.waktu.split(':')[1]} WIB.
+
+          </p>
+
+        </div>
+
+
+
+        {/* Kolom Tanda Tangan */}
+
+        <div className="mt-20 flex justify-between text-center">
+
+          <div className="w-64">
+
+            <p className="mb-24">Pimpinan Rapat,</p>
+
+            <p className="font-bold uppercase border-b border-slate-900 pb-1">{formData.pimpinan}</p>
+
+          </div>
+
+          <div className="w-64">
+
+            <p className="mb-24">Sekretaris Rapat,</p>
+
+            <p className="font-bold uppercase border-b border-slate-900 pb-1">{formData.sekretaris}</p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  );
+function BeritaAcaraView({ company }) {
+  const [formData, setFormData] = useState({
+    tanggal: new Date().toISOString().split('T')[0],
+    pimpinan: 'Direktur Utama',
+    sekretaris: 'Sekretaris Perusahaan',
+    keputusan: '1. Mengesahkan Laporan Keuangan.\n2. Menetapkan laba ditahan.'
+  });
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex justify-between items-center print:hidden">
+        <h2 className="text-xl font-bold text-white uppercase">Berita Acara RUPS</h2>
+        <button onClick={() => window.print()} className="bg-slate-800 px-4 py-2 rounded-lg text-white text-xs flex items-center gap-2"><Printer size={16}/> Cetak Dokumen</button>
+      </div>
+      
+      {/* Form Input */}
+      <div className="bg-slate-900 p-6 rounded-xl grid grid-cols-2 gap-4 print:hidden">
+        <input type="date" className="bg-slate-950 p-2 rounded text-white text-sm" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} />
+        <input type="text" className="bg-slate-950 p-2 rounded text-white text-sm" placeholder="Pimpinan Rapat" value={formData.pimpinan} onChange={e => setFormData({...formData, pimpinan: e.target.value})} />
+        <textarea className="col-span-2 bg-slate-950 p-2 rounded text-white text-sm h-24" placeholder="Hasil Keputusan" value={formData.keputusan} onChange={e => setFormData({...formData, keputusan: e.target.value})} />
+      </div>
+
+      {/* Dokumen Cetak */}
+      <div className="bg-white text-black p-12 max-w-2xl mx-auto shadow-2xl min-h-[800px]">
+        <h3 className="text-center font-bold underline mb-8">BERITA ACARA RUPS</h3>
+        <p>Pada hari ini, {new Date(formData.tanggal).toLocaleDateString('id-ID')}, bertempat di {company.address}, telah dilaksanakan RUPS {company.name}.</p>
+        <p className="mt-4">Rapat dipimpin oleh {formData.pimpinan} dan dihadiri oleh jajaran pemegang saham.</p>
+        <div className="mt-6">
+          <p className="font-bold">Keputusan Rapat:</p>
+          <pre className="font-sans whitespace-pre-wrap">{formData.keputusan}</pre>
+        </div>
+        <div className="mt-12 flex justify-between text-center">
+          <div><p>Pimpinan,</p><br/><br/><p className="font-bold border-b">{formData.pimpinan}</p></div>
+          <div><p>Sekretaris,</p><br/><br/><p className="font-bold border-b">{formData.sekretaris}</p></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 }
